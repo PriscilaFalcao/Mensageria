@@ -1,2 +1,2 @@
 # Mensageria
- Sistema de mensageria com python e habbit
+ Sistema de mensageria com python e RabbitMQ.
