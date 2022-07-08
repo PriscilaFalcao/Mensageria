@@ -1,8 +1,13 @@
 import os
 import json 
+
+#Guardar as informações dos clientes
 nomesCadastrados = []
 cpfCadastrados = []
-telefonesCadastrados = []
+telefonesCadastrados = []   
+print(nomesCadastrados)
+
+
 #Função para cadastro
 def cadastro():
     print("====== C A D A S T R O =======")
@@ -12,10 +17,15 @@ def cadastro():
     cpfCadastrados.append(cpf)
     telefone = input("Telefone: ")
     telefonesCadastrados.append(telefone)
+    cliente = {
+        'nome': nome,
+        'cpf' : cpf,
+        'telefone' : telefone
+    }
+    cliente = (json.dumps(cliente, ensure_ascii=False)) #Transforma em JSON
     print("Cadastro finalizado.")
-    enviar(nome)
+    enviar(cliente)
     voltar()
-
 
 #Função para venda
 def venda():
@@ -33,12 +43,12 @@ def voltar():
         2 - não\n'''))
     if voltar == 1:
         os.system("cls")
-    escolha()
+        escolha()
 
 #Função de cabeçalho
 def escolha():
     print('''Digite:
-    1- para realizar cadastro;
+    1 - para realizar cadastro;
     2 - para realizar compra;''')
     valor = int(input("Valor: "))
     if valor != 1 and valor != 2:
@@ -50,17 +60,18 @@ def escolha():
         venda()
 
 # Função enviar
-def enviar(nome):
+def enviar(cliente):
     import pika
 
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
     channel.queue_declare(queue='hello')
-
+    # for i in range(10000):
     channel.basic_publish(
-        exchange='',
-        routing_key='hello',
-        body=('Nome: ' + nome))
+    exchange='',
+    routing_key='hello',
+    body=(cliente))
+
 
 print("========== LOJAS BTG ===========")
 escolha()
