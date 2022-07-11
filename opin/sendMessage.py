@@ -1,22 +1,13 @@
 import os
 import json 
 
-#Guardar as informações dos clientes
-nomesCadastrados = []
-cpfCadastrados = []
-telefonesCadastrados = []   
-print(nomesCadastrados)
-
 
 #Função para cadastro
 def cadastro():
     print("====== C A D A S T R O =======")
     nome = input("Nome: ")
-    nomesCadastrados.append(nome)
     cpf = input("CPF: ")
-    cpfCadastrados.append(cpf)
     telefone = input("Telefone: ")
-    telefonesCadastrados.append(telefone)
     cliente = {
         'nome': nome,
         'cpf' : cpf,

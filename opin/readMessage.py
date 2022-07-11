@@ -1,39 +1,29 @@
 from unicodedata import name
-import pika, os
-import sqlite3
+import customer as entity
+import sqlite_manager as con
+import rabbit_listener as pms
+import constant
 import json
-cnt = sqlite3.connect("f.db")  
 
-def pdf_process_function(msg): #Função pré-setada com parâmetro
+def initAPI():
+  con.createSqliteDatabase("", constant.DATABASE_SQLITE)
+  l = pms.Listener()
+  l.initConnection('amqp://guest:guest@localhost/%2f')
+  l.openChannel(constant.QUEUE_NAME)
+  l.listenerMessage(getMessage, constant.QUEUE_NAME)
+  l.startConsuming()
+
+def insert(msg): #Função pré-setada com parâmetro
   print(msg)
-  teste = json.loads(msg)
-  cur = cnt.cursor()
-  cur.execute("INSERT INTO Clientes (Nome, CPF, Telefone) VALUES(?,?,?)", (teste['nome'], teste['cpf'], teste['telefone'],))
-  cnt.commit()
-  return;
-  
-# Access the CLODUAMQP_URL environment variable and parse it (fallback to localhost)
-url = os.environ.get('CLOUDAMQP_URL', 'amqp://guest:guest@localhost/%2f')
-params = pika.URLParameters(url)
-connection = pika.BlockingConnection(params)
-channel = connection.channel() # start a channel
-channel.queue_declare(queue='hello') # Declare a queue
-
-def check(body):
-  cur = cnt.cursor()
-  cur.execute("SELECT * FROM Bloquilisti")
-  print(body)
+  customerData = json.loads(msg)
+  c = entity.Customer(customerData['nome'], customerData['cpf'], 0, customerData['telefone'])
+  con.insert("clientes", [["name", "Wiu"], ["identifationCode", "12321"]] )
+  print(c)
   return;
 
 # create a function which is called on incoming messages
-def callback(ch, method, properties, body):
-  check(body)
+def getMessage(ch, method, properties, body):
+  insert(body)
 
-# set up subscription on the queue
-channel.basic_consume('hello',
-  callback,
-  auto_ack=True)
-
-# start consuming (blocks)
-channel.start_consuming()
-connection.close()
+initAPI()
+print(1)
